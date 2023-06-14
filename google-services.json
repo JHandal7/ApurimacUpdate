@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1003118240704",
+    "project_id": "apurimac-9770e",
+    "storage_bucket": "apurimac-9770e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1003118240704:android:b916c217155bfb21a1de25",
+        "android_client_info": {
+          "package_name": "com.example.apurimac"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1003118240704-m2ju5fd0s2koc86j45tvlt5pt0cmv27v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmLGPbziWqSQ3PQMHtkR1V5-K1sDO-Ytw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1003118240704-m2ju5fd0s2koc86j45tvlt5pt0cmv27v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
