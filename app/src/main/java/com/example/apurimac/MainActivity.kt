@@ -1,20 +1,19 @@
 package com.example.apurimac
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.apurimac.Util.NotificationMessage
+import com.example.apurimac.util.NotificationMessage
 import com.example.apurimac.ui.ChatListScreen
 import com.example.apurimac.ui.LoginScreen
 import com.example.apurimac.ui.ProfileScreen
@@ -72,10 +71,10 @@ fun ChatAppNavigation() {
             SignupScreen(navController, vm)
         }
         composable(DestinationScreen.Login.route) {
-            LoginScreen()
+            LoginScreen(navController, vm)
         }
         composable(DestinationScreen.Profile.route) {
-            ProfileScreen(navController = navController)
+            ProfileScreen(navController=navController,vm=vm)
         }
         composable(DestinationScreen.StatusList.route) {
             StatusListScreen(navController = navController)
@@ -85,7 +84,7 @@ fun ChatAppNavigation() {
 
         }
         composable(DestinationScreen.ChatList.route) {
-            ChatListScreen(navController = navController)
+            ChatListScreen(navController = navController,vm=vm)
         }
         composable(DestinationScreen.SingleChat.route) {
             SingleChatScreen(chatId = "123")

@@ -1,6 +1,5 @@
 package com.example.apurimac.ui
 
-import android.content.res.Resources
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,10 +15,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.ComposeNavigator
 import com.example.apurimac.DestinationScreen
 import com.example.apurimac.R
-import com.example.apurimac.Util.navigateTo
+import com.example.apurimac.util.navigateTo
 
 enum class BottomNavigationItem(val icon: Int, val navDestination: DestinationScreen) {
     STATUSLIST(R.drawable.baseline_status, DestinationScreen.StatusList),

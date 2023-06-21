@@ -34,15 +34,15 @@ import androidx.navigation.NavController
 import com.example.apurimac.CAViewModel
 import com.example.apurimac.DestinationScreen
 import com.example.apurimac.R
-import com.example.apurimac.Util.CheckSignIn
-import com.example.apurimac.Util.CommonProgressSpinner
-import com.example.apurimac.Util.navigateTo
+import com.example.apurimac.util.CheckSignedIn
+import com.example.apurimac.util.CommonProgressSpinner
+import com.example.apurimac.util.navigateTo
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(navController: NavController, vm: CAViewModel) {
-    CheckSignIn(vm = vm, navController =navController )
+   CheckSignedIn(vm = vm, navController =navController )
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
