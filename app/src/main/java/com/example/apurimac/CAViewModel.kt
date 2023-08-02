@@ -7,20 +7,22 @@ import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import com.example.apurimac.data.COLLECTION_CHAT
 import com.example.apurimac.data.COLLECTION_MESSAGES
+import com.example.apurimac.data.COLLECTION_STATUS
 import com.example.apurimac.data.COLLECTION_USER
 import com.example.apurimac.data.ChatData
 import com.example.apurimac.data.ChatUser
 import com.example.apurimac.data.Event
 import com.example.apurimac.data.Message
+import com.example.apurimac.data.Status
 import com.example.apurimac.data.UserData
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.Filter
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.storage.FirebaseStorage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import org.checkerframework.checker.units.qual.C
 import java.lang.Exception
 import java.util.Calendar
 import java.util.UUID
@@ -39,14 +41,14 @@ class CAViewModel @Inject constructor(
     val userData = mutableStateOf<UserData?>(null)
     val chats = mutableStateOf<List<ChatData>>(listOf())
     val inProgressChats = mutableStateOf(false)
-    val chatMessages = mutableStateOf<List<Message>>((listOf()))
-    val inProgressChatMessages = mutableStateOf(false)
+    val chatMessages = mutableStateOf<List<Message>>(listOf())
+    private var inProgressChatMessages = mutableStateOf(false)
+    var currentChatMessengersListener: ListenerRegistration? = null
+    val status = mutableStateOf<List<Status>>(listOf())
+    val inProgressStatus = mutableStateOf(false)
 
     init {
-        // auth.signOut()
-        //onLogout()
-        //onLogin("yusuf@gmail.com", "123456" )
-//onSignup("nadia","666666","nadia@gmail.com","123456")
+       onLogout()
         val currentUser = auth.currentUser
         signedIn.value = currentUser != null
         currentUser?.uid?.let { uid ->
@@ -143,9 +145,10 @@ class CAViewModel @Inject constructor(
             if (value != null) {
                 val user = value.toObject<UserData>()
                 userData.value = user
+
                 inProgress.value = false
                 populateChats()
-
+                populateStatuses()
             }
         }
 
@@ -155,10 +158,10 @@ class CAViewModel @Inject constructor(
         auth.signOut()
         signedIn.value = false
         userData.value = null
-        popupNotification.value = Event("Loged out")
+        popupNotification.value = Event("Logged out")
         chats.value = listOf()
-
     }
+
 
 
     private fun handleException(
@@ -174,7 +177,7 @@ class CAViewModel @Inject constructor(
         inProgress.value = false
     }
 
-    private fun uploadImage(uri: Uri, onSuccsses: (Uri) -> Unit) {
+    private fun uploadImage(uri: Uri, onSuccesses: (Uri) -> Unit) {
         inProgress.value = true
         val storageRef = storage.reference
         val uuid = UUID.randomUUID()
@@ -183,7 +186,7 @@ class CAViewModel @Inject constructor(
         uploadTask
             .addOnSuccessListener {
                 val result = it.metadata?.reference?.downloadUrl
-                result?.addOnSuccessListener(onSuccsses)
+                result?.addOnSuccessListener(onSuccesses)
                 inProgress.value = false
             }
             .addOnFailureListener { handleException(it) }
@@ -293,4 +296,88 @@ class CAViewModel @Inject constructor(
             .set(msg)
 
     }
+
+    fun populateChat(chatId: String) {
+        inProgressChatMessages.value = true
+        currentChatMessengersListener = db.collection(COLLECTION_CHAT).document(chatId)
+            .collection(COLLECTION_MESSAGES)
+            .addSnapshotListener { value, error ->
+                if (error != null)
+                    handleException(error)
+                if (value != null)
+                    chatMessages.value = value.documents.mapNotNull {
+                        it.toObject<Message>()
+                    }
+                        .sortedBy { it.timestamp }
+                inProgressChatMessages.value = false
+
+            }
+    }
+
+    fun depopulateChat() {
+        chatMessages.value = listOf()
+        currentChatMessengersListener = null
+    }
+
+    private fun createStatus(imageUrl: String) {
+        val newStatus = Status(
+            ChatUser(
+                userData.value?.userId,
+                userData.value?.name,
+                userData.value?.imageUrl,
+                userData.value?.number,
+            ),
+            imageUrl,
+            System.currentTimeMillis()
+        )
+        db.collection(COLLECTION_STATUS).document().set(newStatus)
+    }
+
+    fun uploadStatus(imageUri: Uri) {
+        uploadImage(imageUri) {
+            createStatus(imageUrl = it.toString())
+        }
+    }
+
+    //private fun uploadImage(uri: Uri, onSuccesses: (Uri) -> Unit) {
+    private fun populateStatuses() {
+        inProgressStatus.value = true
+        val milliTimeDelta = 24L * 60 * 60 * 1000
+        val cutoff = System.currentTimeMillis() - milliTimeDelta
+
+        db.collection(COLLECTION_CHAT)
+            .where(
+                Filter.or(
+                    Filter.equalTo("user1.userId", userData.value?.userId),
+                    Filter.equalTo("user2.userId", userData.value?.userId)
+
+                )
+            )
+            .addSnapshotListener { value, error ->
+                if (error != null)
+                    handleException(error)
+                if (value != null) {
+                    val currentConnections = arrayListOf(userData.value?.userId)
+                    val chats = value.toObjects<ChatData>()
+                    chats.forEach { chat ->
+                        if (chat.user1.userId == userData.value?.userId)
+                            currentConnections.add(chat.user2.userId)
+                        else
+                            currentConnections.add(chat.user1.userId)
+                    }
+
+                    db.collection(COLLECTION_STATUS)
+                        .whereGreaterThan("timestamp", cutoff)
+                        .whereIn("user.userId", currentConnections)
+                        .addSnapshotListener { value, error ->
+                            if (error != null)
+                                handleException(error)
+                            if (value != null)
+                                status.value = value.toObjects<Status>()
+                            inProgressStatus.value = false
+                        }
+                }
+            }
+    }
 }
+

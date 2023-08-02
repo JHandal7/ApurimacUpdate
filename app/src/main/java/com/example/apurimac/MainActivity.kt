@@ -28,16 +28,22 @@ sealed class DestinationScreen(val route: String) {
     object Signup : DestinationScreen("signup")
     object Login : DestinationScreen("login")
     object Profile : DestinationScreen("profile")
+
     object ChatList : DestinationScreen("chatList")
     object SingleChat : DestinationScreen("singleChat/{chatId}") {
         fun createRoute(id: String) = "singleChat/$id"
     }
 
     object StatusList : DestinationScreen("statusList")
-    object SingleStatus : DestinationScreen("singleStatus/{statusId") {
-        fun createRoute(id: String) = "singleStatus/$id"
+    object SingleStatus : DestinationScreen("singleStatus/{userId}") {
+        fun createRoute(userId: String?) = "singleStatus/$userId"
     }
 }
+  /*composable(
+        route =
+        "${SingleAccount.route}/{${SingleAccount.accountTypeArg}}",
+        arguments = SingleAccount.arguments
+    ) { na*/
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -60,35 +66,69 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ChatAppNavigation() {
-
+    //var currentScreen: RallyDestination by remember { mutableStateOf(RallyDestination.Signup)}
     val navController = rememberNavController()
+  //  val currentBackStackEntry by navController.currentBackStackEntryAsState()
+    // val currentDestination=currentBackStackEntry?.destination
+    // val currentScreen=currentBackStackEntry?.destination
+  //  val currentBackStack by navController.currentBackStackEntryAsState()
+  //  val currentDestination = currentBackStack?.destination
     val vm = hiltViewModel<CAViewModel>()
-    NotificationMessage(vm=vm)
-    NavHost(
-        navController, startDestination = DestinationScreen.Signup.route
-    ) {
+    NotificationMessage(vm = vm)
+    NavHost(navController = navController, startDestination = DestinationScreen.Signup.route) {
+
+
         composable(DestinationScreen.Signup.route) {
-            SignupScreen(navController, vm)
+            SignupScreen(navController = navController, vm = vm)
         }
         composable(DestinationScreen.Login.route) {
-            LoginScreen(navController, vm)
+            LoginScreen(navController = navController, vm = vm)
         }
         composable(DestinationScreen.Profile.route) {
-            ProfileScreen(navController=navController,vm=vm)
+            ProfileScreen(navController = navController, vm = vm)
         }
         composable(DestinationScreen.StatusList.route) {
-            StatusListScreen(navController = navController)
+            StatusListScreen(navController = navController, vm = vm)
         }
         composable(DestinationScreen.SingleStatus.route) {
-            SingleStatusScreen(statusId = "123")
+            val userId = it.arguments?.getString("userId")
+            userId?.let {
+                SingleStatusScreen(
+                    navController = navController,
+                    vm = vm,
+                    userId = it
+                )
+            }
 
         }
         composable(DestinationScreen.ChatList.route) {
-            ChatListScreen(navController = navController,vm=vm)
+            ChatListScreen(navController = navController, vm = vm)
         }
         composable(DestinationScreen.SingleChat.route) {
-            SingleChatScreen(chatId = "123")
+
+
+            val chatId = it.arguments?.getString("chatId")
+            chatId?.let {
+                SingleChatScreen(
+                    navController = navController,
+                    vm = vm,
+                    chatId = chatId
+                )
+            }
         }
     }
 }
+
+    /*composable(
+        route =
+        "${SingleAccount.route}/{${SingleAccount.accountTypeArg}}",
+        arguments = SingleAccount.arguments
+    ) { na*/
+
+   /* navBackStackEntry ->
+    // Retrieve the passed argument
+    val accountType =
+        navBackStackEntry.arguments?.getString(SingleAccount.accountTypeArg)*/
+
+
 

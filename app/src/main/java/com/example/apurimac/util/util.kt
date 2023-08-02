@@ -25,7 +25,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.annotation.ExperimentalCoilApi
 import coil.compose.ImagePainter
@@ -110,7 +112,7 @@ fun CommonDivider() {
 }
 
 @Composable
-fun commonRow(
+fun CommonRow(
     imageUrl: String?, name: String?, onItemClick: () -> Unit
 ) {
     Row(
@@ -134,4 +136,11 @@ fun commonRow(
 
     }
 
+}
+@Composable
+fun TitleText(txt: String) {
+Text(text = txt,
+    fontWeight = FontWeight.Bold,
+    fontSize = 35.sp,
+    modifier = Modifier.padding(8.dp))
 }

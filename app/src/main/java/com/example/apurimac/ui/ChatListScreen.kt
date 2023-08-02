@@ -19,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,31 +31,29 @@ import androidx.navigation.NavController
 import com.example.apurimac.CAViewModel
 import com.example.apurimac.DestinationScreen
 import com.example.apurimac.util.CommonProgressSpinner
-import com.example.apurimac.util.commonRow
+import com.example.apurimac.util.CommonRow
+import com.example.apurimac.util.TitleText
 import com.example.apurimac.util.navigateTo
-import javax.crypto.Cipher
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatListScreen(navController: NavController, vm: CAViewModel) {
-    val showDialog = remember {
-        mutableStateOf(false)
-    }
-    val onFabClick: () -> Unit = { showDialog.value = true }
-    val onDismiss: () -> Unit = { showDialog.value = false }
-    val onAddChat: (String) -> Unit = {
-        //Call vm
-        vm.onAddChat(it)
-        showDialog.value = false
-    }
-
-
     val inProgress = vm.inProgressChats.value
     if (inProgress)
         CommonProgressSpinner()
     else {
         val chats = vm.chats.value
         val userData = vm.userData.value
+    val showDialog = remember { mutableStateOf(false)}
+
+    val onFabClick: () -> Unit = { showDialog.value = true }
+    val onDismiss: () -> Unit = { showDialog.value = false }
+    val onAddChat: (String) -> Unit = {
+        vm.onAddChat(it)
+        showDialog.value = false
+    }
+
+
 
         Scaffold(
             floatingActionButton = {
@@ -74,6 +71,7 @@ fun ChatListScreen(navController: NavController, vm: CAViewModel) {
                         .fillMaxSize()
                         .padding(it)
                 ) {
+                    TitleText(txt = "Chats")
                     if (chats.isEmpty())
                         Column(
                             modifier = Modifier
@@ -89,7 +87,7 @@ fun ChatListScreen(navController: NavController, vm: CAViewModel) {
                             items(chats) { chat ->
                                 val chatUser = if (chat.user1.userId == userData?.userId) chat.user2
                                 else chat.user1
-                                commonRow(
+                                CommonRow(
                                     imageUrl = chatUser.imageUrl ?: "",
                                     name = chatUser.name
                                 ) {
@@ -117,6 +115,8 @@ fun ChatListScreen(navController: NavController, vm: CAViewModel) {
         )//Scaffold
     }//Else
 }// ChatListScreen
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -160,7 +160,10 @@ fun FAB(
         Icon(Icons.Rounded.Add, contentDescription = null, tint = Color.White)
 
     }
+
+
 }
+
 
 
 
